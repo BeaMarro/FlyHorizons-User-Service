@@ -1,0 +1,1201 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>flyhorizons-userservice: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">flyhorizons-userservice/main.go (0.0%)</option>
+				
+				<option value="file1">flyhorizons-userservice/models/enums/account_type.go (0.0%)</option>
+				
+				<option value="file2">flyhorizons-userservice/repositories/base_repository.go (6.7%)</option>
+				
+				<option value="file3">flyhorizons-userservice/repositories/entity/user_entity.go (0.0%)</option>
+				
+				<option value="file4">flyhorizons-userservice/repositories/user_repository.go (100.0%)</option>
+				
+				<option value="file5">flyhorizons-userservice/routes/login_router.go (80.0%)</option>
+				
+				<option value="file6">flyhorizons-userservice/routes/user_router.go (73.7%)</option>
+				
+				<option value="file7">flyhorizons-userservice/services/authentication/account_hashing.go (0.0%)</option>
+				
+				<option value="file8">flyhorizons-userservice/services/authentication/gateway_auth_middleware.go (0.0%)</option>
+				
+				<option value="file9">flyhorizons-userservice/services/authentication/jwt_token_signer.go (0.0%)</option>
+				
+				<option value="file10">flyhorizons-userservice/services/converter/user_converter.go (100.0%)</option>
+				
+				<option value="file11">flyhorizons-userservice/services/errors/account_exists_error.go (0.0%)</option>
+				
+				<option value="file12">flyhorizons-userservice/services/errors/account_not_found_error.go (0.0%)</option>
+				
+				<option value="file13">flyhorizons-userservice/services/errors/common_password_error.go (0.0%)</option>
+				
+				<option value="file14">flyhorizons-userservice/services/errors/hashing_password_error.go (0.0%)</option>
+				
+				<option value="file15">flyhorizons-userservice/services/errors/insufficient_password_complexity_error.go (0.0%)</option>
+				
+				<option value="file16">flyhorizons-userservice/services/errors/insufficient_password_length_error.go (0.0%)</option>
+				
+				<option value="file17">flyhorizons-userservice/services/errors/invalid_account_type_error.go (0.0%)</option>
+				
+				<option value="file18">flyhorizons-userservice/services/errors/invalid_credentials_error.go (0.0%)</option>
+				
+				<option value="file19">flyhorizons-userservice/services/login_service.go (72.7%)</option>
+				
+				<option value="file20">flyhorizons-userservice/services/user_service.go (91.1%)</option>
+				
+				<option value="file21">flyhorizons-userservice/services/validation/password_validator.go (50.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "flyhorizons-userservice/repositories"
+        "flyhorizons-userservice/routes"
+        "flyhorizons-userservice/services"
+        "flyhorizons-userservice/services/authentication"
+        "flyhorizons-userservice/services/converter"
+        "flyhorizons-userservice/services/validation"
+
+        "github.com/gin-gonic/gin"
+)
+
+func main() <span class="cov0" title="0">{
+        router := gin.Default()
+
+        // Initialize repository
+        baseRepo := &amp;repositories.BaseRepository{}
+        userRepo := repositories.NewUserRepository(baseRepo)
+
+        // Initialize services
+        userConverter := converter.UserConverter{}
+        passwordValidator := validation.PasswordValidator{}
+        accountHashing := authentication.NewAccountHashing()
+        jwtSigner := authentication.NewJwtTokenSigner()
+        oauthSigner := services.NewOAuthTokenSigner(jwtSigner)
+
+        // Authentication middlware
+        gatewayAuthMiddleware := authentication.NewGatewayAuthMiddleware()
+        loginService := services.NewLoginService(userRepo, userConverter, oauthSigner)
+        userService := services.NewUserService(userRepo, accountHashing, passwordValidator, userConverter)
+
+        // Register routes
+        routes.RegisterUserRoutes(router, userService, gatewayAuthMiddleware)
+        routes.RegisterAuthRoutes(router, loginService)
+
+        // Run the microservice
+        router.Run(":8081")
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package enums
+
+type AccountType int
+
+const (
+        Admin AccountType = 0
+        User  AccountType = 1
+)
+
+func AccountTypeFromInt(value int) AccountType <span class="cov0" title="0">{
+        switch value </span>{
+        case 0:<span class="cov0" title="0">
+                return Admin</span>
+        case 1:<span class="cov0" title="0">
+                return User</span>
+        default:<span class="cov0" title="0">
+                return User</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package repositories
+
+import (
+        "database/sql"
+        "fmt"
+        "log"
+        "os"
+
+        "github.com/joho/godotenv"
+        _ "github.com/microsoft/go-mssqldb"
+        "gorm.io/driver/sqlserver"
+        "gorm.io/gorm"
+)
+
+type BaseRepository struct {
+        DB *gorm.DB
+}
+
+func LoadDBConfig() string <span class="cov0" title="0">{
+        // Load environment variables from .env file (optional)
+        if err := godotenv.Load(); err != nil </span><span class="cov0" title="0">{
+                log.Println("No .env file found, relying on environment variables")
+        }</span>
+
+        // Get environment variables
+        <span class="cov0" title="0">server := os.Getenv("DB_SERVER")
+        port := os.Getenv("DB_PORT")
+        user := os.Getenv("DB_USER")
+        password := os.Getenv("DB_PASSWORD")
+        database := os.Getenv("DB_DATABASE")
+
+        // Check if all required variables are set
+        if server == "" || port == "" || user == "" || password == "" || database == "" </span><span class="cov0" title="0">{
+                return "" // Return empty string if variables are missing
+        }</span>
+
+        // Build and return the connection string
+        <span class="cov0" title="0">connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
+                server, user, password, port, database)
+        return connString</span>
+}
+
+func (dal *BaseRepository) CreateConnection() (*gorm.DB, error) <span class="cov8" title="1">{
+        // If the DB is already initialized, return it
+        if dal.DB != nil </span><span class="cov8" title="1">{
+                return dal.DB, nil
+        }</span>
+
+        // Load the database connection string
+        <span class="cov0" title="0">connString := LoadDBConfig()
+        if connString == "" </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to load database configuration: environment variables missing")
+        }</span>
+
+        // Connect to the database
+        <span class="cov0" title="0">sqlDB, err := sql.Open("sqlserver", connString)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error creating connection pool: %w", err)
+        }</span>
+
+        // Ensure we can connect by pinging the database
+        <span class="cov0" title="0">err = sqlDB.Ping()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error pinging the database: %w", err)
+        }</span>
+
+        // Initialize GORM with the *sql.DB connection
+        <span class="cov0" title="0">db, err := gorm.Open(sqlserver.New(sqlserver.Config{
+                Conn: sqlDB,
+        }), &amp;gorm.Config{})
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error initializing GORM: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">dal.DB = db
+        return dal.DB, nil</span>
+}
+
+func (dal *BaseRepository) CloseConnection() <span class="cov0" title="0">{
+        if dal.DB != nil </span><span class="cov0" title="0">{
+                sqlDB, _ := dal.DB.DB()
+                sqlDB.Close()
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package entities
+
+import "time"
+
+type UserEntity struct {
+        ID          int       `gorm:"column:ID;primaryKey"`
+        FullName    string    `gorm:"column:FullName"`
+        Email       string    `gorm:"column:Email;unique"`
+        AccountType int       `gorm:"column:AccountType"`
+        Password    string    `gorm:"column:Password"`
+        CreatedAt   time.Time `gorm:"column:CreatedAt"`
+}
+
+// Override the default table name
+func (UserEntity) TableName() string <span class="cov0" title="0">{
+        return "Account"
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package repositories
+
+import (
+        entities "flyhorizons-userservice/repositories/entity"
+        "flyhorizons-userservice/services/interfaces"
+        "time"
+)
+
+type UserRepository struct {
+        *BaseRepository
+}
+
+var _ interfaces.UserRepository = (*UserRepository)(nil)
+
+func NewUserRepository(baseRepo *BaseRepository) *UserRepository <span class="cov8" title="1">{
+        return &amp;UserRepository{
+                BaseRepository: baseRepo,
+        }
+}</span>
+
+func (repo *UserRepository) GetAll() []entities.UserEntity <span class="cov8" title="1">{
+        db, _ := repo.CreateConnection()
+
+        var users []entities.UserEntity
+        db.Find(&amp;users)
+
+        return users
+}</span>
+
+func (repo *UserRepository) GetByID(id int) entities.UserEntity <span class="cov8" title="1">{
+        db, _ := repo.CreateConnection()
+
+        var user entities.UserEntity
+        db.First(&amp;user, id)
+
+        return user
+}</span>
+
+func (repo *UserRepository) GetByEmail(email string) entities.UserEntity <span class="cov8" title="1">{
+        db, _ := repo.CreateConnection()
+
+        var user entities.UserEntity
+        db.Where("email = ?", email).First(&amp;user)
+
+        return user
+}</span>
+
+func (repo *UserRepository) Create(userEntity entities.UserEntity) entities.UserEntity <span class="cov8" title="1">{
+        db, _ := repo.CreateConnection()
+
+        db.Create(&amp;userEntity)
+
+        return userEntity
+}</span>
+
+func (repo *UserRepository) DeleteByID(id int) bool <span class="cov8" title="1">{
+        db, _ := repo.CreateConnection()
+
+        result := db.Delete(&amp;entities.UserEntity{}, id)
+
+        if result.Error != nil || result.RowsAffected == 0 </span><span class="cov8" title="1">{
+                return false
+        }</span>
+
+        <span class="cov8" title="1">return true</span>
+}
+
+func (repo *UserRepository) Update(userEntity entities.UserEntity) entities.UserEntity <span class="cov8" title="1">{
+        db, _ := repo.CreateConnection()
+
+        db.Save(&amp;userEntity)
+
+        return userEntity
+}</span>
+
+func (repo *UserRepository) SaveLastLoginTime(userID int) <span class="cov8" title="1">{
+        db, _ := repo.CreateConnection()
+
+        db.Model(&amp;entities.UserEntity{}).
+                Where("id = ?", userID).
+                Update("LastLogin", time.Now())
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package routes
+
+import (
+        "flyhorizons-userservice/models/request"
+        "flyhorizons-userservice/services/interfaces"
+        "net/http"
+
+        "github.com/gin-gonic/gin"
+)
+
+func RegisterAuthRoutes(router *gin.Engine, loginService interfaces.LoginService) <span class="cov8" title="1">{
+        router.POST("/login", func(c *gin.Context) </span><span class="cov8" title="1">{
+                var loginRequest request.LoginRequest
+
+                // Bind the JSON request body to the loginRequest struct
+                if err := c.ShouldBindJSON(&amp;loginRequest); err != nil </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                        return
+                }</span>
+
+                // Call the login service
+                <span class="cov8" title="1">loginResponse, err := loginService.Login(loginRequest)
+                if err != nil </span><span class="cov8" title="1">{
+                        // Return error message
+                        c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+                        return
+                }</span>
+
+                // Return the loginResponse
+                <span class="cov8" title="1">c.JSON(http.StatusCreated, loginResponse)</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package routes
+
+import (
+        "flyhorizons-userservice/models"
+        "flyhorizons-userservice/services/errors"
+        "flyhorizons-userservice/services/interfaces"
+        "net/http"
+        "strconv"
+
+        "github.com/gin-gonic/gin"
+)
+
+func RegisterUserRoutes(router *gin.Engine, userService interfaces.UserService, authMiddleware interfaces.GatewayAuthMiddleware) <span class="cov8" title="1">{
+        // Public route
+        router.POST("/users", func(ctx *gin.Context) </span><span class="cov8" title="1">{
+                var user models.User
+                if err := ctx.ShouldBindJSON(&amp;user); err != nil </span><span class="cov0" title="0">{
+                        ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                        return
+                }</span>
+
+                <span class="cov8" title="1">postUser, err := userService.Create(user)
+                if err != nil </span><span class="cov8" title="1">{
+                        if _, ok := err.(*errors.UserExistsError); ok </span><span class="cov8" title="1">{
+                                ctx.JSON(http.StatusConflict, gin.H{"message": err.Error()})
+                                return
+                        }</span>
+                        <span class="cov8" title="1">if _, ok := err.(*errors.InsufficientPasswordLengthError); ok </span><span class="cov8" title="1">{
+                                ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                                return
+                        }</span>
+                        <span class="cov8" title="1">if _, ok := err.(*errors.InsufficientPasswordComplexityError); ok </span><span class="cov8" title="1">{
+                                ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                                return
+                        }</span>
+                        <span class="cov8" title="1">if _, ok := err.(*errors.CommonPasswordError); ok </span><span class="cov8" title="1">{
+                                ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                                return
+                        }</span>
+                        <span class="cov0" title="0">ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+                        return</span>
+                }
+                <span class="cov8" title="1">ctx.JSON(http.StatusCreated, postUser)</span>
+        })
+
+        <span class="cov8" title="1">userGroup := router.Group("/users")
+        userGroup.Use(authMiddleware.GatewayAuthMiddleware())
+
+        // Protected routes
+        // Only accessible by admins
+        userGroup.GET("/", func(ctx *gin.Context) </span><span class="cov8" title="1">{
+                role, exists := ctx.Get("role")
+
+                if !exists || role != "admin" </span><span class="cov8" title="1">{
+                        ctx.JSON(http.StatusForbidden, gin.H{"error": "unauthorized: admin access required"})
+                        return
+                }</span>
+
+                <span class="cov8" title="1">users := userService.GetAll()
+                ctx.JSON(http.StatusOK, users)</span>
+        })
+
+        // Only accessible by users with the matching ID
+        <span class="cov8" title="1">userGroup.GET("/:userID", func(ctx *gin.Context) </span><span class="cov8" title="1">{
+                userIDString := ctx.Param("userID")
+                userID, err := strconv.Atoi(userIDString)
+                if err != nil </span><span class="cov0" title="0">{
+                        ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid userID"})
+                        return
+                }</span>
+
+                <span class="cov8" title="1">tokenUserID := ctx.GetInt("user_id")
+
+                if tokenUserID != userID </span><span class="cov8" title="1">{
+                        ctx.JSON(http.StatusForbidden, gin.H{"error": "unauthorized: cannot access the account belonging to another user"})
+                        return
+                }</span>
+
+                <span class="cov8" title="1">user, err := userService.GetByID(userID)
+                if err != nil </span><span class="cov0" title="0">{
+                        if _, ok := err.(*errors.UserNotFoundError); ok </span><span class="cov0" title="0">{
+                                ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+                                return
+                        }</span>
+                        <span class="cov0" title="0">ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+                        return</span>
+                }
+                <span class="cov8" title="1">ctx.JSON(http.StatusOK, user)</span>
+        })
+
+        // Only accessible by users with the matching ID
+        <span class="cov8" title="1">userGroup.DELETE("/:ID", func(ctx *gin.Context) </span><span class="cov8" title="1">{
+                userIDString := ctx.Param("ID")
+                userID, err := strconv.Atoi(userIDString)
+                if err != nil </span><span class="cov0" title="0">{
+                        ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid userID"})
+                        return
+                }</span>
+
+                <span class="cov8" title="1">tokenUserID := ctx.GetInt("sub")
+
+                if tokenUserID != userID </span><span class="cov8" title="1">{
+                        ctx.JSON(http.StatusForbidden, gin.H{"error": "unauthorized: cannot delete the account of a different user"})
+                        return
+                }</span>
+
+                <span class="cov8" title="1">success, err := userService.DeleteByID(userID)
+                if err != nil </span><span class="cov0" title="0">{
+                        if _, ok := err.(*errors.UserNotFoundError); ok </span><span class="cov0" title="0">{
+                                ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+                                return
+                        }</span>
+                        <span class="cov0" title="0">ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+                        return</span>
+                }
+
+                <span class="cov8" title="1">if success </span><span class="cov8" title="1">{
+                        ctx.JSON(http.StatusOK, gin.H{"message": "user deleted successfully"})
+                }</span> else<span class="cov0" title="0"> {
+                        ctx.JSON(http.StatusInternalServerError, gin.H{"message": "failed to delete user"})
+                }</span>
+        })
+
+        // Only accessible by users with the matching ID
+        <span class="cov8" title="1">userGroup.PUT("/", func(ctx *gin.Context) </span><span class="cov8" title="1">{
+                var user models.User
+                if err := ctx.ShouldBindJSON(&amp;user); err != nil </span><span class="cov0" title="0">{
+                        ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                        return
+                }</span>
+
+                <span class="cov8" title="1">tokenUserID := ctx.GetInt("sub")
+
+                if user.ID != tokenUserID </span><span class="cov8" title="1">{
+                        ctx.JSON(http.StatusForbidden, gin.H{"error": "unauthorized: cannot update the account belonging to another user"})
+                        return
+                }</span>
+
+                <span class="cov8" title="1">putUser, err := userService.Update(user)
+                if err != nil </span><span class="cov8" title="1">{
+                        if _, ok := err.(*errors.UserNotFoundError); ok </span><span class="cov0" title="0">{
+                                ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+                                return
+                        }</span>
+                        <span class="cov8" title="1">if _, ok := err.(*errors.InsufficientPasswordLengthError); ok </span><span class="cov8" title="1">{ // Other 2 types of exceptions to throw this type of custom exception
+                                ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                                return
+                        }</span>
+                        <span class="cov8" title="1">if _, ok := err.(*errors.InsufficientPasswordComplexityError); ok </span><span class="cov8" title="1">{
+                                ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                                return
+                        }</span>
+                        <span class="cov8" title="1">if _, ok := err.(*errors.CommonPasswordError); ok </span><span class="cov8" title="1">{
+                                ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                                return
+                        }</span>
+                        <span class="cov0" title="0">ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+                        return</span>
+                }
+                <span class="cov8" title="1">ctx.JSON(http.StatusOK, putUser)</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package authentication
+
+import (
+        "flyhorizons-userservice/services/errors"
+
+        "golang.org/x/crypto/bcrypt"
+)
+
+type AccountHashing struct{}
+
+func NewAccountHashing() *AccountHashing <span class="cov0" title="0">{
+        return &amp;AccountHashing{}
+}</span>
+
+func (service *AccountHashing) HashPassword(password string) (string, error) <span class="cov0" title="0">{
+        // Hash the password using bcrypt
+        hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+        if err != nil </span><span class="cov0" title="0">{
+                // Return the custom hashing error
+                return "", errors.NewHashingPasswordError(100)
+        }</span>
+        <span class="cov0" title="0">return string(hashedPassword), nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package authentication
+
+import (
+        "fmt"
+        "net/http"
+        "os"
+        "strings"
+
+        "github.com/gin-gonic/gin"
+        "github.com/golang-jwt/jwt/v4"
+        "github.com/joho/godotenv"
+)
+
+type GatewayAuthMiddlewareHandler struct{}
+
+func (g *GatewayAuthMiddlewareHandler) GatewayAuthMiddleware() gin.HandlerFunc <span class="cov0" title="0">{
+        return func(c *gin.Context) </span><span class="cov0" title="0">{
+                // Load .env file
+                err := godotenv.Load()
+                if err != nil </span><span class="cov0" title="0">{
+                        fmt.Println("Error loading .env file")
+                }</span>
+
+                <span class="cov0" title="0">JwtSecret := []byte(os.Getenv("JWT_SECRET"))
+
+                // Get JWT token from Authorization header
+                authHeader := c.GetHeader("Authorization")
+
+                if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") </span><span class="cov0" title="0">{
+                        c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing or invalid Authorization header"})
+                        return
+                }</span>
+
+                <span class="cov0" title="0">tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+
+                // Parse the JWT token
+                token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) </span><span class="cov0" title="0">{
+                        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok </span><span class="cov0" title="0">{
+                                return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+                        }</span>
+                        <span class="cov0" title="0">return JwtSecret, nil</span>
+                })
+
+                <span class="cov0" title="0">if err != nil || !token.Valid </span><span class="cov0" title="0">{
+                        fmt.Println("JWT parsing failed:", err)
+                        c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid JWT token"})
+                        return
+                }</span>
+
+                // Extract claims
+                <span class="cov0" title="0">claims, ok := token.Claims.(jwt.MapClaims)
+                if !ok </span><span class="cov0" title="0">{
+                        c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid JWT claims"})
+                        return
+                }</span>
+
+                // TODO: Delete the logging after implementing the refreshing authentication tokens
+                <span class="cov0" title="0">fmt.Println("--- Extracted JWT Claims ---")
+                for k, v := range claims </span><span class="cov0" title="0">{
+                        fmt.Printf("%s: %v\n", k, v)
+                }</span>
+
+                // Set claims
+                <span class="cov0" title="0">if sub, ok := claims["sub"].(float64); ok </span><span class="cov0" title="0">{
+                        c.Set("user_id", int(sub))
+                        c.Set("sub", int(sub))
+                }</span>
+                <span class="cov0" title="0">if role, ok := claims["role"].(string); ok </span><span class="cov0" title="0">{
+                        c.Set("role", role)
+                }</span>
+                <span class="cov0" title="0">if email, ok := claims["email"].(string); ok </span><span class="cov0" title="0">{
+                        c.Set("email", email)
+                }</span>
+
+                <span class="cov0" title="0">c.Next()</span>
+        }
+}
+
+func NewGatewayAuthMiddleware() *GatewayAuthMiddlewareHandler <span class="cov0" title="0">{
+        return &amp;GatewayAuthMiddlewareHandler{}
+}</span>
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package authentication
+
+import (
+        "fmt"
+        "os"
+
+        "github.com/golang-jwt/jwt"
+)
+
+type JwtTokenSigner struct{}
+
+func NewJwtTokenSigner() *JwtTokenSigner <span class="cov0" title="0">{
+        return &amp;JwtTokenSigner{}
+}</span>
+
+func (s *JwtTokenSigner) SignToken(claims jwt.Claims) (string, error) <span class="cov0" title="0">{
+        token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+        secretKey := []byte(os.Getenv("JWT_SECRET"))
+        fmt.Println("Secret Key", secretKey)
+        signedToken, err := token.SignedString(secretKey)
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov0" title="0">return signedToken, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package converter
+
+import (
+        "flyhorizons-userservice/models"
+        "flyhorizons-userservice/models/enums"
+        entities "flyhorizons-userservice/repositories/entity"
+        "time"
+)
+
+type UserConverter struct{}
+
+func (userConverter *UserConverter) ConvertUserEntityToUser(entity entities.UserEntity) models.User <span class="cov8" title="1">{
+        return models.User{
+                ID:          entity.ID,
+                FullName:    entity.FullName,
+                Email:       entity.Email,
+                AccountType: enums.AccountTypeFromInt(entity.AccountType),
+                Password:    entity.Password,
+        }
+}</span>
+
+func (userConverter *UserConverter) ConvertUserToUserEntity(user models.User) entities.UserEntity <span class="cov8" title="1">{
+        return entities.UserEntity{
+                ID:          user.ID,
+                FullName:    user.FullName,
+                Email:       user.Email,
+                AccountType: int(user.AccountType),
+                Password:    user.Password,
+                // Set the current time of creation/update
+                CreatedAt: time.Now(),
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package errors
+
+import "fmt"
+
+type UserExistsError struct {
+        ID int
+}
+
+func (e *UserExistsError) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("User with the ID %d already exists", e.ID)
+}</span>
+
+func NewUserExistsError(id int, errorCode int) *UserExistsError <span class="cov0" title="0">{
+        return &amp;UserExistsError{ID: id}
+}</span>
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package errors
+
+import "fmt"
+
+type UserNotFoundError struct {
+        ID int
+}
+
+func (e *UserNotFoundError) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("User with the ID %d was not found", e.ID)
+}</span>
+
+func NewUserNotFoundError(id int, errorCode int) *UserNotFoundError <span class="cov0" title="0">{
+        return &amp;UserNotFoundError{ID: id}
+}</span>
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package errors
+
+import "fmt"
+
+type CommonPasswordError struct {
+        ErrorCode int
+}
+
+func (e *CommonPasswordError) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("The password belongs to the list of most common passwords, thus it is not sufficiently secure. [Error code: %d]", e.ErrorCode)
+}</span>
+
+func NewCommonPasswordError(errorCode int) *CommonPasswordError <span class="cov0" title="0">{
+        return &amp;CommonPasswordError{ErrorCode: errorCode}
+}</span>
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">package errors
+
+import "fmt"
+
+type HashingPasswordError struct {
+        ErrorCode int
+}
+
+func (e *HashingPasswordError) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("Password Hashing Error - Code: %d", e.ErrorCode)
+}</span>
+
+func NewHashingPasswordError(errorCode int) *HashingPasswordError <span class="cov0" title="0">{
+        return &amp;HashingPasswordError{ErrorCode: errorCode}
+}</span>
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">package errors
+
+import "fmt"
+
+type InsufficientPasswordComplexityError struct {
+        ErrorCode int
+}
+
+func (e *InsufficientPasswordComplexityError) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("The complexity given password is insufficient, it should consist of upper and lowercase letters, as well as a number and symbol. [Error code: %d]", e.ErrorCode)
+}</span>
+
+func NewInsufficientPasswordComplexityError(errorCode int) *InsufficientPasswordComplexityError <span class="cov0" title="0">{
+        return &amp;InsufficientPasswordComplexityError{ErrorCode: errorCode}
+}</span>
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">package errors
+
+import "fmt"
+
+type InsufficientPasswordLengthError struct {
+        ErrorCode int
+}
+
+func (e *InsufficientPasswordLengthError) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("The length of the given password is insufficient, it should be at least 13 characters in length. [Error code: %d]", e.ErrorCode)
+}</span>
+
+func NewInsufficientPasswordLengthError(errorCode int) *InsufficientPasswordLengthError <span class="cov0" title="0">{
+        return &amp;InsufficientPasswordLengthError{ErrorCode: errorCode}
+}</span>
+</pre>
+		
+		<pre class="file" id="file17" style="display: none">package errors
+
+import "fmt"
+
+type InvalidAccountTypeError struct {
+        ErrorCode int
+}
+
+func (e *InvalidAccountTypeError) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("The account type provided is invalid. Error Code: %d", e.ErrorCode)
+}</span>
+
+func NewInvalidAccountTypeError(errorCode int) *InvalidAccountTypeError <span class="cov0" title="0">{
+        return &amp;InvalidAccountTypeError{ErrorCode: errorCode}
+}</span>
+</pre>
+		
+		<pre class="file" id="file18" style="display: none">package errors
+
+import "fmt"
+
+type InvalidCredentialsError struct {
+        ErrorCode int
+}
+
+func (e *InvalidCredentialsError) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("The credentials provided are invalid. Error Code: %d", e.ErrorCode)
+}</span>
+
+func NewInvalidCredentialsError(errorCode int) *InvalidCredentialsError <span class="cov0" title="0">{
+        return &amp;InvalidCredentialsError{ErrorCode: errorCode}
+}</span>
+</pre>
+		
+		<pre class="file" id="file19" style="display: none">package services
+
+import (
+        "flyhorizons-userservice/models"
+        "flyhorizons-userservice/models/enums"
+        "flyhorizons-userservice/models/request"
+        "flyhorizons-userservice/models/response"
+        "flyhorizons-userservice/services/authentication"
+        "flyhorizons-userservice/services/converter"
+        "flyhorizons-userservice/services/errors"
+        "flyhorizons-userservice/services/interfaces"
+        "time"
+
+        "github.com/golang-jwt/jwt"
+        "golang.org/x/crypto/bcrypt"
+)
+
+type OAuthTokenSigner struct {
+        jwtSigner *authentication.JwtTokenSigner
+}
+
+func NewOAuthTokenSigner(jwtSigner *authentication.JwtTokenSigner) *OAuthTokenSigner <span class="cov0" title="0">{
+        return &amp;OAuthTokenSigner{
+                jwtSigner: jwtSigner,
+        }
+}</span>
+
+func (signer *OAuthTokenSigner) SignToken(claims jwt.Claims) (string, error) <span class="cov0" title="0">{
+        return signer.jwtSigner.SignToken(claims)
+}</span>
+
+type LoginService struct {
+        repo          interfaces.UserRepository
+        userConverter converter.UserConverter
+        tokenSigner   interfaces.TokenSigner
+}
+
+func NewLoginService(repo interfaces.UserRepository, userConverter converter.UserConverter, tokenSigner interfaces.TokenSigner) *LoginService <span class="cov8" title="1">{
+        return &amp;LoginService{
+                repo:          repo,
+                userConverter: userConverter,
+                tokenSigner:   tokenSigner,
+        }
+}</span>
+
+func (service *LoginService) Login(loginRequest request.LoginRequest) (*response.LoginResponse, error) <span class="cov8" title="1">{
+        accountEntity := service.repo.GetByEmail(loginRequest.Email)
+        account := service.userConverter.ConvertUserEntityToUser(accountEntity)
+
+        if !service.matchesPassword(loginRequest.Password, account.Password) </span><span class="cov8" title="1">{
+                return nil, errors.NewInvalidCredentialsError(400)
+        }</span>
+
+        // Generate OAuth Token
+        <span class="cov8" title="1">accessToken, err := service.generateOAuthToken(account)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return &amp;response.LoginResponse{AccessToken: accessToken}, nil</span>
+}
+
+func (service *LoginService) matchesPassword(rawPassword, encodedPassword string) bool <span class="cov8" title="1">{
+        err := bcrypt.CompareHashAndPassword([]byte(encodedPassword), []byte(rawPassword))
+        return err == nil
+}</span>
+
+func (service *LoginService) generateOAuthToken(account models.User) (string, error) <span class="cov8" title="1">{
+        var role = ""
+
+        if account.AccountType == enums.User </span><span class="cov8" title="1">{
+                role = "user"
+        }</span> else<span class="cov0" title="0"> if account.AccountType == enums.Admin </span><span class="cov0" title="0">{
+                role = "admin"
+        }</span> else<span class="cov0" title="0"> {
+                return "", errors.NewInvalidAccountTypeError(401)
+        }</span>
+
+        // OAuth compliant claims
+        <span class="cov8" title="1">claims := jwt.MapClaims{
+                "sub":        account.ID,                            // Subject (user ID)
+                "email":      account.Email,                         // User email
+                "account_id": account.ID,                            // User ID (kept for not crashing the frontend)
+                "role":       role,                                  // User role
+                "iss":        "flyhorizons-user-service",            // Issuer
+                "aud":        "flyhorizons-api",                     // Audience
+                "iat":        time.Now().Unix(),                     // Issued at
+                "exp":        time.Now().Add(72 * time.Hour).Unix(), // Expiration
+        }
+
+        // Save last login time
+        service.repo.SaveLastLoginTime(account.ID)
+
+        return service.tokenSigner.SignToken(claims)</span>
+}
+</pre>
+		
+		<pre class="file" id="file20" style="display: none">package services
+
+import (
+        "flyhorizons-userservice/models"
+        "flyhorizons-userservice/services/authentication"
+        "flyhorizons-userservice/services/converter"
+        "flyhorizons-userservice/services/errors"
+        "flyhorizons-userservice/services/interfaces"
+        "flyhorizons-userservice/services/validation"
+)
+
+type UserService struct {
+        userRepo           interfaces.UserRepository
+        accountHashing     *authentication.AccountHashing
+        passwordValidation validation.PasswordValidator
+        userConverter      converter.UserConverter
+}
+
+func NewUserService(repo interfaces.UserRepository, accountHashing *authentication.AccountHashing, passwordValidator validation.PasswordValidator, userConverter converter.UserConverter) *UserService <span class="cov8" title="1">{
+        return &amp;UserService{
+                userRepo:       repo,
+                accountHashing: accountHashing,
+                userConverter:  userConverter,
+        }
+}</span>
+
+func (userService *UserService) GetAll() []models.User <span class="cov8" title="1">{
+        userEntities := userService.userRepo.GetAll()
+
+        var users []models.User
+        for _, userEntity := range userEntities </span><span class="cov8" title="1">{
+                user := userService.userConverter.ConvertUserEntityToUser(userEntity)
+                users = append(users, user)
+        }</span>
+
+        <span class="cov8" title="1">return users</span>
+}
+
+func (userService *UserService) GetByID(id int) (*models.User, error) <span class="cov8" title="1">{
+        userEntity := userService.userRepo.GetByID(id)
+        // User is not found
+        if userEntity.ID == 0 </span><span class="cov8" title="1">{
+                return nil, errors.NewUserNotFoundError(id, 404)
+        }</span>
+
+        // User is found
+        <span class="cov8" title="1">user := userService.userConverter.ConvertUserEntityToUser(userEntity)
+        return &amp;user, nil</span>
+}
+
+func (UserService *UserService) UserExists(id int) bool <span class="cov8" title="1">{
+        for _, user := range UserService.GetAll() </span><span class="cov8" title="1">{
+                if user.ID == id </span><span class="cov8" title="1">{
+                        return true
+                }</span>
+        }
+        <span class="cov8" title="1">return false</span>
+}
+
+func (userService *UserService) Create(user models.User) (*models.User, error) <span class="cov8" title="1">{
+        if userService.UserExists(user.ID) </span><span class="cov8" title="1">{
+                return nil, errors.NewUserExistsError(user.ID, 409)
+        }</span>
+
+        // Validate password
+        <span class="cov8" title="1">err := userService.passwordValidation.Validate(user.Password)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        // Encode password
+        <span class="cov8" title="1">hashedPassword, err := userService.accountHashing.HashPassword(user.Password)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">user.Password = hashedPassword
+
+        var userEntity = userService.userConverter.ConvertUserToUserEntity(user)
+        var postUserEntity = userService.userRepo.Create(userEntity)
+        var postUser = userService.userConverter.ConvertUserEntityToUser(postUserEntity)
+
+        return &amp;postUser, nil</span>
+}
+
+func (userService *UserService) DeleteByID(id int) (bool, error) <span class="cov8" title="1">{
+        if !userService.UserExists(id) </span><span class="cov8" title="1">{
+                return false, errors.NewUserNotFoundError(id, 404)
+        }</span>
+        <span class="cov8" title="1">return userService.userRepo.DeleteByID(id), nil</span>
+}
+
+func (userService *UserService) Update(user models.User) (*models.User, error) <span class="cov8" title="1">{
+        if !userService.UserExists(user.ID) </span><span class="cov8" title="1">{
+                return nil, errors.NewUserNotFoundError(user.ID, 404)
+        }</span>
+
+        // Validate password
+        <span class="cov8" title="1">err := userService.passwordValidation.Validate(user.Password)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        // Encode password
+        <span class="cov8" title="1">hashedPassword, err := userService.accountHashing.HashPassword(user.Password)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">user.Password = hashedPassword
+
+        var userEntity = userService.userConverter.ConvertUserToUserEntity(user)
+        var putUserEntity = userService.userRepo.Update(userEntity)
+        var putUser = userService.userConverter.ConvertUserEntityToUser(putUserEntity)
+
+        return &amp;putUser, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file21" style="display: none">package validation
+
+import (
+        "bufio"
+        "flyhorizons-userservice/services/errors"
+        "fmt"
+        "os"
+        "unicode"
+)
+
+type PasswordValidator struct {
+        commonPasswords map[string]struct{}
+}
+
+func NewPasswordValidator(filepath string) (*PasswordValidator, error) <span class="cov0" title="0">{
+        validator := &amp;PasswordValidator{
+                commonPasswords: make(map[string]struct{}),
+        }
+
+        // Load common passwords list during initialization
+        err := validator.LoadCommonPasswords(filepath)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return validator, nil</span>
+}
+
+func (passwordValidator *PasswordValidator) LoadCommonPasswords(filepath string) error <span class="cov0" title="0">{
+        file, err := os.Open(filepath)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to open common passwords file: %w", err)
+        }</span>
+        <span class="cov0" title="0">defer file.Close()
+
+        scanner := bufio.NewScanner(file)
+        for scanner.Scan() </span><span class="cov0" title="0">{
+                password := scanner.Text()
+                passwordValidator.commonPasswords[password] = struct{}{}
+        }</span>
+
+        <span class="cov0" title="0">if err := scanner.Err(); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error reading common passwords: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+// Internal methods
+func (passwordValidator *PasswordValidator) CheckLength(password string) bool <span class="cov8" title="1">{
+        return len(password) &gt; 12
+}</span>
+
+func (passwordValidator *PasswordValidator) CheckCharacterComplexity(password string) bool <span class="cov8" title="1">{
+        var hasUpper, hasLower, hasNumber, hasSpecial bool
+        for _, char := range password </span><span class="cov8" title="1">{
+                switch </span>{
+                case unicode.IsUpper(char):<span class="cov8" title="1">
+                        hasUpper = true</span>
+                case unicode.IsLower(char):<span class="cov8" title="1">
+                        hasLower = true</span>
+                case unicode.IsNumber(char):<span class="cov8" title="1">
+                        hasNumber = true</span>
+                case unicode.IsPunct(char) || unicode.IsSymbol(char):<span class="cov8" title="1">
+                        hasSpecial = true</span>
+                }
+        }
+        <span class="cov8" title="1">return hasUpper &amp;&amp; hasLower &amp;&amp; hasNumber &amp;&amp; hasSpecial</span>
+}
+
+func (passwordValidator *PasswordValidator) CheckAgainstWeakestPasswordsList(password string) bool <span class="cov8" title="1">{
+        _, found := passwordValidator.commonPasswords[password]
+        return found
+}</span>
+
+// Validation method
+func (passwordValidator *PasswordValidator) Validate(password string) error <span class="cov8" title="1">{
+        if passwordValidator.CheckAgainstWeakestPasswordsList(password) </span><span class="cov0" title="0">{
+                return errors.NewCommonPasswordError(400)
+        }</span>
+        <span class="cov8" title="1">if !passwordValidator.CheckLength(password) </span><span class="cov8" title="1">{
+                return errors.NewInsufficientPasswordLengthError(400)
+        }</span>
+        <span class="cov8" title="1">if !passwordValidator.CheckCharacterComplexity(password) </span><span class="cov8" title="1">{
+                return errors.NewInsufficientPasswordComplexityError(400)
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

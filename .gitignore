@@ -1,0 +1,5 @@
+# Ignore the environment file
+.env
+
+# Ignore Snyk code analysis cached file
+.dccache
